@@ -12,3 +12,9 @@ workon nasa-impact
 pip install -r requirements.txt
 python -m ipykernel install --name nasa-impact --user
 ```
+
+additionally install tensorflow examples repo
+
+```bash
+pip install -q git+https://github.com/tensorflow/examples.git
+```

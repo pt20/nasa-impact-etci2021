@@ -1,5 +1,4 @@
 tensorflow
-rasterio
 numpy
-geopandas
 ipykernel
+matplotlib
