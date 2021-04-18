@@ -1,0 +1,55 @@
+# syntax = docker/dockerfile:experimental
+FROM python:3.8-slim as build
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    LC_ALL=C.UTF-8 \
+    LANG=C.UTF-8 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update && \
+    apt-get -y install \
+        build-essential \
+        ca-certificates \
+        wget \
+        libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Create Virtual Env
+ENV VIRTUAL_ENV=/app/.venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN pip install \
+        mlflow==1.14.1 \
+        psycopg2-binary \
+        boto3
+
+RUN wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && \
+    chmod +x wait-for-it.sh
+
+# Final stage
+FROM python:3.8-slim
+
+ENV LC_ALL=C.UTF-8 \
+    LANG=C.UTF-8 \
+    PYTHONPATH=/opt:/opt/api/python \
+    DEBIAN_FRONTEND=noninteractive
+
+# Build dependencies
+RUN apt-get update && \
+    apt-get -y install \
+        libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /app /app
+
+WORKDIR /app
+
+# Create Virtual Env
+ENV VIRTUAL_ENV=/app/.venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+ENTRYPOINT ["mlflow", "server", "--host=0.0.0.0", "--port=5000"]
+EXPOSE 5000

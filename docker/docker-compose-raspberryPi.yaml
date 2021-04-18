@@ -1,0 +1,32 @@
+version: '3.6'
+services:
+
+    postgres:
+        image: postgres
+        container_name: postgres
+        expose:
+            - "5432"
+        environment:
+            - POSTGRES_USER=mlflow
+            - POSTGRES_PASSWORD=mlflow
+            - POSTGRES_DB=mlflow
+            - POSTGRES_HOST=mlflow
+
+    mlflow:
+        build:
+            context: .
+            dockerfile: Dockerfile.mlflow
+        container_name: mlflow
+        depends_on:
+            - postgres
+        ports:
+            - "5000:5000"
+        entrypoint: ./wait-for-it.sh postgres:5432 -t 5 -- \
+                    mlflow server \
+                        --backend-store-uri postgresql+psycopg2://mlflow:mlflow@postgres:5432/mlflow \
+                        --default-artifact-root--default-artifact-root \
+                        --host 0.0.0.0 \
+                        --port 5000 \
+                        /data 
+        volumes:
+            - ../data:/data
