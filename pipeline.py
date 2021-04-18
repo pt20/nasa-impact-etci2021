@@ -15,10 +15,10 @@ def collect_image_paths_old(base_path, img_type):
 
 
 def collect_image_paths(csv, img_type):
-    df = pd.read_csv("all_files_harmonized.csv", index_col=0)
+    df = pd.read_csv(csv, index_col=0)
     assert img_type in list(df.columns)
 
-    return df["vv"].tolist()
+    return df[img_type].tolist()
 
 
 def load_image(path):
