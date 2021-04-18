@@ -130,3 +130,5 @@ dmypy.json
 
 data/
 .vscode/settings.json
+data.csv
+*.h5
