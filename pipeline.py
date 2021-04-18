@@ -4,6 +4,7 @@ from pathlib import Path
 import tensorflow as tf
 
 
+# TODO: collect image paths needs to be changed since names have inconsistencies
 def collect_image_paths(base_path, img_type):
     files = []
     for i in list(Path(base_path).rglob(f"**/{img_type}/*.png")):
