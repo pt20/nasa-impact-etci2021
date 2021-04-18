@@ -1,5 +1,8 @@
 tensorflow
-rasterio
 numpy
-geopandas
 ipykernel
+matplotlib
+imageio
+scikit-learn
+opencv-python
+pandas
