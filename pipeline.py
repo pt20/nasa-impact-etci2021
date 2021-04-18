@@ -32,6 +32,7 @@ def load_image(path):
 
 
 def load_flood_mask(path):
+    # https://www.spacefish.biz/2020/11/rgb-segmentation-masks-to-classes-in-tensorflow/
     mask = tf.io.read_file(path)
     mask = tf.image.decode_png(mask)
 
