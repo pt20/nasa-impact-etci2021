@@ -57,7 +57,6 @@ def preprocess(img_path, mask_path):
     def f(img_path, mask_path):
         x = load_image(img_path)
         y = load_flood_mask(mask_path)
-        print(img_path, mask_path)
 
         return x, y
 
