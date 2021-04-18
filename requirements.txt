@@ -3,3 +3,6 @@ numpy
 ipykernel
 matplotlib
 imageio
+scikit-learn
+opencv-python
+pandas
