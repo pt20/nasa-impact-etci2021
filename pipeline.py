@@ -1,16 +1,24 @@
 import os
 from pathlib import Path
 
+import pandas as pd
 import tensorflow as tf
 
 
-# TODO: collect image paths needs to be changed since names have inconsistencies
-def collect_image_paths(base_path, img_type):
+# NOTE: deprecated function - keeping it for now - just in case
+def collect_image_paths_old(base_path, img_type):
     files = []
     for i in list(Path(base_path).rglob(f"**/{img_type}/*.png")):
         files.append(str(i.name))
 
     return [os.path.join(base_path, i) for i in sorted(files)]
+
+
+def collect_image_paths(csv, img_type):
+    df = pd.read_csv("all_files_harmonized.csv", index_col=0)
+    assert img_type in list(df.columns)
+
+    return df["vv"].tolist()
 
 
 def load_image(path):
