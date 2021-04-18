@@ -21,12 +21,12 @@ services:
             - postgres
         ports:
             - "5000:5000"
-        entrypoint: ./wait-for-it.sh postgres:5432 -t 5 -- \
-                    mlflow server \
-                        --backend-store-uri postgresql+psycopg2://mlflow:mlflow@postgres:5432/mlflow \
-                        --default-artifact-root--default-artifact-root \
-                        --host 0.0.0.0 \
-                        --port 5000 \
-                        /data 
+        entrypoint: ["./wait-for-it.sh", "postgres:5432", "-t", "5", "--",
+                            "mlflow", "server",
+                                "--backend-store-uri", "postgresql+psycopg2://mlflow:mlflow@postgres:5432/mlflow",
+                                "--default-artifact-root", "/data",
+                                "--host", "0.0.0.0",
+                                "--port", "5000"
+                    ]
         volumes:
             - ../data:/data
