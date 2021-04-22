@@ -6,3 +6,4 @@ imageio
 scikit-learn
 opencv-python
 pandas
+mlflow
