@@ -1,0 +1,10 @@
+Things to try:
+
+1. Gradients
+2. FFT (whole and patches)
+3. Wavelets
+4. Layer normalization
+5. Leaky Relu, GeLu
+6. Think ways to add location information
+7. Affine transformation to remove tilt
+8. Remove artifacts? If using FFT we need to mirror borders
