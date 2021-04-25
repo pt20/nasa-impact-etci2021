@@ -19,7 +19,7 @@ def proc(idx: Tuple[str, str, str], df: pd.DataFrame):
         tmp = Image.open(Path(".").joinpath(path))
         img.paste(tmp, (256 * y, 256 * x))
 
-    img.save(Path(path).parents[-3].joinpath(f"{place}_{datetime}_{t}.png"))
+    img.save(Path(path).parents[3].joinpath(f"{place}_{datetime}_{t}.png"))
 
 
 if __name__ == "__main__":
