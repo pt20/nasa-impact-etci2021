@@ -1,0 +1,8 @@
+# syntax = docker/dockerfile:experimental
+FROM tensorflow/tensorflow:latest-gpu
+
+WORKDIR /app
+
+# Create Virtual Env
+RUN pip install mlflow pandas scikit-learn opencv-python
+
