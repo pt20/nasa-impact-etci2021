@@ -1,10 +1,10 @@
 import os
 
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 import datetime
 
 import mlflow
-import numpy as np
+
+# import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.callbacks import (
@@ -14,18 +14,21 @@ from tensorflow.keras.callbacks import (
     ReduceLROnPlateau,
     TensorBoard,
 )
+import pandas as pd
 
 from architecture import build_unet, build_vgg19_unet
 from metrics import *
 from pipeline import collect_image_paths, tf_dataset
 
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
 # TODO: bring them to yaml (or json file) for auto logging
-input_files_csv = "all_files_harmonized.csv"
+input_files_csv = "data/all_files_harmonized.csv"
 batch_size = 8
-input_shape = (256, 256, 3)
+input_shape = (256, 256, 2)
 epochs = 10
 lr = 1e-4
-model_path = "results/"
+model_path = "data/results/"
 timestamp_str = str(datetime.datetime.now()).replace(" ", "_")
 ckpt_path = os.path.join(model_path, timestamp_str, "model.h5")
 csv_path = f"{timestamp_str}-data.csv"
@@ -33,12 +36,17 @@ csv_path = f"{timestamp_str}-data.csv"
 my_mlflow_uri = os.environ.get("MY_MLFLOW_URI")
 mlflow.set_tracking_uri(my_mlflow_uri)
 
-images_vv = collect_image_paths(input_files_csv, img_type="vv")
-masks_fld = collect_image_paths(input_files_csv, img_type="flood_label")
+inputs_df = pd.read_csv(input_files_csv, index_col=0)
+# images_vv = collect_image_paths(input_files_csv, img_type="vv")
+# masks_fld = collect_image_paths(input_files_csv, img_type="flood_label")
 
 # train test split
-train_x, test_x = train_test_split(images_vv, test_size=0.2, random_state=112)
-train_y, test_y = train_test_split(masks_fld, test_size=0.2, random_state=112)
+train_x, test_x = train_test_split(
+    inputs_df[["vh", "vv"]].to_numpy(), test_size=0.2, random_state=112
+)
+train_y, test_y = train_test_split(
+    inputs_df["flood_label"].to_numpy(), test_size=0.2, random_state=112
+)
 
 train_dataset = tf_dataset(train_x, train_y, batch=batch_size)
 test_dataset = tf_dataset(test_x, test_y, batch=batch_size)
@@ -53,8 +61,9 @@ callbacks = [
 
 metrics = [dice_coef, iou, tf.keras.metrics.Recall(), tf.keras.metrics.Precision()]
 
-model = build_vgg19_unet(input_shape)
+model = build_unet(input_shape)
 model.compile(loss=dice_loss, optimizer=tf.keras.optimizers.Adam(lr), metrics=metrics)
+model.summary()
 
 train_steps = len(train_x) // batch_size
 if len(train_x) % batch_size != 0:
