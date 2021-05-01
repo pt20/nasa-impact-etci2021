@@ -12,7 +12,7 @@ from albumentations import (
 import pandas as pd
 import tensorflow as tf
 
-
+input_shape = (256, 256, 3)
 transforms = Compose(
     [
         RandomBrightness(limit=0.1),
