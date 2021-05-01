@@ -43,8 +43,6 @@ timestamp_str = str(datetime.datetime.now()).replace(" ", "_")
 ckpt_path = os.path.join(model_path, timestamp_str, "model.h5")
 csv_path = f"{timestamp_str}-data.csv"
 
-my_mlflow_uri = os.environ.get("MY_MLFLOW_URI")
-mlflow.set_tracking_uri(my_mlflow_uri)
 
 inputs_df = pd.read_csv(input_files_csv, index_col=0)
 # images_vv = collect_image_paths(input_files_csv, img_type="vv")
@@ -90,6 +88,8 @@ test_steps = len(test_x) // batch_size
 if len(test_x) % batch_size != 0:
     test_steps += 1
 
+# my_mlflow_uri = os.environ.get("MY_MLFLOW_URI")
+# mlflow.set_tracking_uri(my_mlflow_uri)
 mlflow.tensorflow.autolog()
 mlflow.set_experiment("sample-experiment")
 
