@@ -26,6 +26,7 @@ from tensorflow.keras.callbacks import (
 import pandas as pd
 
 from architecture import build_unet, build_vgg19_unet
+from double_unet import build_double_unet
 from metrics import *
 from pipeline import collect_image_paths, tf_dataset
 
@@ -70,7 +71,7 @@ callbacks = [
 
 metrics = [dice_coef, iou, tf.keras.metrics.Recall(), tf.keras.metrics.Precision()]
 
-model = build_unet(input_shape)
+model = build_double_unet(input_shape)
 model.compile(loss=dice_loss, optimizer=tf.keras.optimizers.Adam(lr), metrics=metrics)
 model.summary()
 
