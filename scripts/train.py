@@ -1,3 +1,13 @@
+import tensorflow as tf
+
+physical_devices = tf.config.list_physical_devices("GPU")
+try:
+    for pd in physical_devices:
+        tf.config.experimental.set_memory_growth(pd, True)
+except:
+    # Invalid device or cannot modify virtual devices once initialized.
+    pass
+
 import os
 
 import datetime
@@ -5,7 +15,6 @@ import datetime
 import mlflow
 
 # import numpy as np
-import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.callbacks import (
     CSVLogger,
