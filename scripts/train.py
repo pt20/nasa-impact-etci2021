@@ -74,20 +74,11 @@ callbacks = [
 
 
 with strategy.scope():
-    model = build_vgg19_unet(input_shape)
+    model = build_double_unet(input_shape)
     metrics = [dice_coef, iou, tf.keras.metrics.Recall(), tf.keras.metrics.Precision()]
 
 model.compile(loss=dice_loss, optimizer=tf.keras.optimizers.Adam(lr), metrics=metrics)
 model.summary()
-
-train_steps = len(train_dataset) // batch_size
-if len(train_dataset) % batch_size != 0:
-    train_steps += 1
-
-test_steps = len(test_dataset) // batch_size
-if len(test_dataset) % batch_size != 0:
-    test_steps += 1
-
 
 # my_mlflow_uri = os.environ.get("MY_MLFLOW_URI")
 # mlflow.set_tracking_uri(my_mlflow_uri)
@@ -99,16 +90,14 @@ with mlflow.start_run():
     mlflow.log_param("input_shape", input_shape)
     mlflow.log_param("epochs", epochs)
     mlflow.log_param("learning_rate", lr)
-    mlflow.log_param("train_steps", train_steps)
-    mlflow.log_param("test_steps", test_steps)
+    mlflow.log_param("train_length", len(train_dataset))
+    mlflow.log_param("test_length", len(test_dataset))
     mlflow.log_param("model", model.name)
 
     model.fit(
         train_dataset,
         validation_data=test_dataset,
         epochs=epochs,
-        steps_per_epoch=train_steps,
-        validation_steps=test_steps,
         callbacks=callbacks,
     )
 
