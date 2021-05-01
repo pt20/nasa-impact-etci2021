@@ -185,5 +185,5 @@ def build_double_unet(shape):
     outputs2 = output_block(x)
     outputs = Concatenate()([outputs1, outputs2])
 
-    model = Model(inputs, outputs)
+    model = Model(inputs, outputs, name="VGG19_double-U-Net")
     return model
