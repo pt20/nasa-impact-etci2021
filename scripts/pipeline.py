@@ -56,5 +56,5 @@ def tf_dataset(images, masks, batch=8):
     dataset = dataset.shuffle(buffer_size=5000)
     dataset = dataset.map(preprocess)
     dataset = dataset.batch(batch_size=batch)
-    dataset = dataset.prefetch(2)
+    dataset = dataset.prefetch(tf.data.AUTOTUNE)
     return dataset
