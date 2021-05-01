@@ -62,7 +62,9 @@ def preprocess(img_path, mask_path):
     def f(img_path, mask_path):
         vh = load_image(img_path[0])
         vv = load_image(img_path[1])
-        img = tf.concat([vh, vv], axis=-1)
+        vv_vh = tf.sqrt(tf.square(vv) + tf.square(vh))
+
+        img = tf.concat([vh, vv, vv_vh], axis=-1)
         mask = load_flood_mask(mask_path)
         return img, mask
 

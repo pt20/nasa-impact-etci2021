@@ -35,7 +35,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 # TODO: bring them to yaml (or json file) for auto logging
 input_files_csv = "data/all_files_harmonized.csv"
 batch_size_per_replica = 5
-input_shape = (256, 256, 2)
+input_shape = (256, 256, 3)
 epochs = 10
 lr = 1e-4
 model_path = "data/results/"
@@ -74,19 +74,20 @@ callbacks = [
 
 
 with strategy.scope():
-    model = build_unet(input_shape)
+    model = build_vgg19_unet(input_shape)
     metrics = [dice_coef, iou, tf.keras.metrics.Recall(), tf.keras.metrics.Precision()]
 
 model.compile(loss=dice_loss, optimizer=tf.keras.optimizers.Adam(lr), metrics=metrics)
 model.summary()
 
-train_steps = len(train_x) // batch_size
-if len(train_x) % batch_size != 0:
+train_steps = len(train_dataset) // batch_size
+if len(train_dataset) % batch_size != 0:
     train_steps += 1
 
-test_steps = len(test_x) // batch_size
-if len(test_x) % batch_size != 0:
+test_steps = len(test_dataset) // batch_size
+if len(test_dataset) % batch_size != 0:
     test_steps += 1
+
 
 # my_mlflow_uri = os.environ.get("MY_MLFLOW_URI")
 # mlflow.set_tracking_uri(my_mlflow_uri)
