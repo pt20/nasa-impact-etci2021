@@ -1,12 +1,12 @@
 import tensorflow as tf
 
-physical_devices = tf.config.list_physical_devices("GPU")
-try:
-    for pd in physical_devices:
-        tf.config.experimental.set_memory_growth(pd, True)
-except:
-    # Invalid device or cannot modify virtual devices once initialized.
-    pass
+# physical_devices = tf.config.list_physical_devices("GPU")
+# try:
+# for pd in physical_devices:
+# tf.config.experimental.set_memory_growth(pd, True)
+# except:
+# # Invalid device or cannot modify virtual devices once initialized.
+# pass
 
 import os
 
@@ -34,7 +34,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 # TODO: bring them to yaml (or json file) for auto logging
 input_files_csv = "data/all_files_harmonized.csv"
-batch_size = 8
+batch_size_per_replica = 5
 input_shape = (256, 256, 2)
 epochs = 10
 lr = 1e-4
@@ -58,6 +58,11 @@ train_y, test_y = train_test_split(
     inputs_df["flood_label"].to_numpy(), test_size=0.2, random_state=112
 )
 
+# Set strategy
+# tf.debugging.set_log_device_placement(True)
+strategy = tf.distribute.MirroredStrategy()
+batch_size = batch_size_per_replica * strategy.num_replicas_in_sync
+
 train_dataset = tf_dataset(train_x, train_y, batch=batch_size)
 test_dataset = tf_dataset(test_x, test_y, batch=batch_size)
 
@@ -69,9 +74,11 @@ callbacks = [
     TensorBoard(),
 ]
 
-metrics = [dice_coef, iou, tf.keras.metrics.Recall(), tf.keras.metrics.Precision()]
 
-model = build_double_unet(input_shape)
+with strategy.scope():
+    model = build_unet(input_shape)
+    metrics = [dice_coef, iou, tf.keras.metrics.Recall(), tf.keras.metrics.Precision()]
+
 model.compile(loss=dice_loss, optimizer=tf.keras.optimizers.Adam(lr), metrics=metrics)
 model.summary()
 
