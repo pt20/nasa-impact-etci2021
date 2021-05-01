@@ -1,8 +1,27 @@
 import os
 from pathlib import Path
+from albumentations import (
+    Compose,
+    RandomBrightness,
+    RandomContrast,
+    HorizontalFlip,
+    Rotate,
+    RandomSizedCrop,
+)
 
 import pandas as pd
 import tensorflow as tf
+
+
+transforms = Compose(
+    [
+        RandomBrightness(limit=0.1),
+        RandomContrast(limit=0.2, p=0.5),
+        HorizontalFlip(),
+        Rotate(),
+        RandomSizedCrop((200, 200), input_shape[0], input_shape[0]),
+    ]
+)
 
 
 # NOTE: deprecated function - keeping it for now - just in case
@@ -51,10 +70,24 @@ def preprocess(img_path, mask_path):
     return image, mask
 
 
+def apply_aug(img, msk):
+    def f(img, msk):
+        augmented = transforms(image=img, mask=msk)
+
+        image_aug = augmented["image"]
+        mask_aug = augmented["mask"]
+
+        return image_aug, mask_aug
+
+    image, mask = tf.numpy_function(f, [img, msk], [tf.float32, tf.float32])
+    return image, mask
+
+
 def tf_dataset(images, masks, batch=8):
     dataset = tf.data.Dataset.from_tensor_slices((images, masks))
     dataset = dataset.shuffle(buffer_size=5000)
-    dataset = dataset.map(preprocess)
+    dataset = dataset.map(preprocess, num_parallel_calls=tf.data.AUTOTUNE)
+    dataset = dataset.map(apply_aug, num_parallel_calls=tf.data.AUTOTUNE)
     dataset = dataset.batch(batch_size=batch)
-    dataset = dataset.prefetch(tf.data.AUTOTUNE)
+    dataset = dataset.prefetch(tf.data.AUTOTUNE).repeat(10)
     return dataset
